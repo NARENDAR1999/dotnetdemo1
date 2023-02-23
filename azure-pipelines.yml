@@ -12,12 +12,14 @@ pool:
   name: 'Demo'
 
 variables:
-  buildConfiguration: 'Release'
-  dotNetFramework: 'net6.0'
-  repository: 'walmartpayment'
-  namespace: 'walmartdev'
-  k8sconnection: 'feb14-walmartdev'
-  imagePullSecret: 'test'
+  dockerRegistryServiceConnection: 'feb22'
+  imageRepository: 'narendardotnetdemo'
+  containerRegistry: 'feb22.azurecr.io'
+  dockerfilePath: '**/Dockerfile'
+  tag: '$(Build.BuildId)'
+  k8sconnection: feb14-walmartdev
+  k8sNamespace: walmartdev
+  imagePullSecret: test
 
 stages:
 - stage: 'Build'
