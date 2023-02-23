@@ -3,28 +3,32 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/docker
 
 trigger:
-- develop
+- main
+- feautre/*
 
 resources:
 - repo: self
 
 variables:
   # Container registry service connection established during pipeline creation
-  dockerRegistryServiceConnection: '530a60c8-4295-4020-990b-f73a436ffd06'
-  imageRepository: 'narendardotnetdemo'
+  dockerRegistryServiceConnection: 'feb22'
+  imageRepository: 'NARENDAR1999.dotnetdemo1'
   containerRegistry: 'feb22.azurecr.io'
-  dockerfilePath: '$(Build.SourcesDirectory)/Dockerfile'
+  dockerfilePath: '**/Dockerfile'
   tag: '$(Build.BuildId)'
+  k8sconnection: feb14-walmartdev
+  k8sNamespace: walmartdev
+  imagePullSecret: test
 
   # Agent VM image name
-  vmImageName: 'ubuntu-latest'
+  vmImageName: 'ubuntu-latest' 
 
 stages:
 - stage: Build
-  displayName: Build and push stage
-  jobs:
+  displayName: Build stage
+  jobs:  
   - job: Build
-    displayName: Build
+    displayName: Build job
     pool:
       vmImage: $(vmImageName)
     steps:
@@ -37,3 +41,50 @@ stages:
         containerRegistry: $(dockerRegistryServiceConnection)
         tags: |
           $(tag)
+
+    - task: PublishPipelineArtifact@1
+      inputs:
+        artifactName: 'manifests'
+        path: 'manifests'
+- stage: Deploy
+  displayName: Deploy to dev
+  dependsOn: Build
+  jobs:
+  - deployment: Deploy
+    displayName: Deploy job
+    pool:
+      vmImage: $(vmImageName)
+    environment: 'walmart-dev'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              artifactName: 'manifests'
+              downloadPath: '$(System.ArtifactsDirectory)/manifests'
+
+          - task: KubernetesManifest@0
+            displayName: Create imagePullSecret
+            inputs:
+              action: createSecret
+              secretName: $(imagePullSecret)
+              namespace: $(k8sNamespace)
+              dockerRegistryEndpoint: $(dockerRegistryServiceConnection)
+              kubernetesServiceConnection: $(k8sconnection)
+
+          - task: KubernetesManifest@0
+            displayName: Deploy to Kubernetes cluster
+            inputs:
+              action: deploy
+              namespace: $(k8sNamespace)
+              manifests: |
+                $(System.ArtifactsDirectory)/manifests/deployment.yaml
+                $(System.ArtifactsDirectory)/manifests/Service.yaml
+                $(System.ArtifactsDirectory)/manifests/secrets.yaml
+              imagePullSecrets: |
+                $(imagePullSecret)
+              containers: |
+                $(containerRegistry)/$(imageRepository):$(tag)
+              kubernetesServiceConnection: $(k8sconnection)
+              arguments: '--n=walmartdev'
