@@ -17,7 +17,7 @@ variables:
   dockerfilePath: '**/Dockerfile'
   tag: '$(Build.BuildId)'
   k8sconnection: feb14-walmartdev
-  k8sNamespace: walmartdev
+  k8sNamespace: 'walmartdev'
   imagePullSecret: test
 
   # Agent VM image name
