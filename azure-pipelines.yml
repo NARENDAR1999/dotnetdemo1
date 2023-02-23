@@ -20,7 +20,7 @@ variables:
   dotNetFramework: 'net6.0'
   repository: 'walmartpayment'
   namespace: 'walmartdev'
-  k8sconnection: 'kubewalmartdev'
+  k8sconnection: 'feb14-walmartdev'
   imagePullSecret: 'test'
 
 stages:
@@ -83,4 +83,5 @@ stages:
               imagePullSecrets: |
                 $(imagePullSecret)
               arguments: '-n=walmartdev'
+              
   
