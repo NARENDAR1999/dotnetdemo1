@@ -11,7 +11,7 @@ resources:
 
 variables:
   # Container registry service connection established during pipeline creation
-  dockerRegistryServiceConnection: 'walmartpayment'
+  dockerRegistryServiceConnection: 'feb22'
   imageRepository: 'narendardotnetdemo'
   containerRegistry: 'feb22.azurecr.io'
   dockerfilePath: '**/Dockerfile'
@@ -46,6 +46,11 @@ stages:
         artifactName: 'manifests'
         path: 'manifests'
 
+    
+    -task: PublishPipelineArtifact@1
+     inputs: 
+      artifactName: 'manifests'
+      path: 'manifests'
 - stage: Deploy
   displayName: Deploy stage
   dependsOn: Build
@@ -54,7 +59,7 @@ stages:
     displayName: Deploy job
     pool:
       vmImage: $(vmImageName)
-    environment: 'walmart-dev'
+    environment: 'NARENDAR1999dotnetdemo1'
     strategy:
       runOnce:
         deploy:
