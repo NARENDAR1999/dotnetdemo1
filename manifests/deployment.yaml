@@ -9,7 +9,7 @@ spec:
   selector:
     matchLabels:
       app: walmartpayment-dev
-  progressDeadlineSeconds: 3600
+  progressDeadlineSeconds: 100000
   replicas: 1
   strategy:
     rollingUpdate:
