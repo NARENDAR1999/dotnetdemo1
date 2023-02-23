@@ -47,10 +47,7 @@ stages:
         path: 'manifests'
 
     
-    -task: PublishPipelineArtifact@1
-      inputs:
-       artifactName: 'manifests'
-       path: 'manifests'
+
 - stage: Deploy
   displayName: Deploy stage
   dependsOn: Build
